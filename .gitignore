@@ -111,6 +111,7 @@ env.bak/
 venv.bak/
 .flora-venv
 flora-venv/
+..flora-venv/
 
 
 
