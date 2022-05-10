@@ -1,0 +1,76 @@
+{% extends "layout.html "%}
+ 
+{% block content %}
+
+<main style="background-image: url('static/images/background.jpg');">
+
+  <section class="py-5 text-center container">
+    <div class="row py-lg-5">
+      <div class="col-lg-6 col-md-8 mx-auto" style="color:black;">
+        <h1 class="fw-light">Lorem ipsum</h1>
+        <p class="lead text-muted">
+          <strong>Lorem ipsum is placeholder text commonly used in the graphic, print, and publishing industries for previewing layouts and visual mockups.</strong><p>
+          <a href="{{url_for('plant.create')}}" class="btn btn-success my-2">Dodaj biljku</a>
+          <a href="{{url_for('pot.create')}}" class="btn btn-secondary my-2">Dodaj posudu</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+
+    <div class="album py-5 bg-light">
+        <div class="container">
+          <div class="container pt-1 pb-1 d-flex justify-content-between">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post" class="form-inline">
+                        {{ form.csrf_token }}
+                        <div class="form-row">
+                            {{form.filter_value(class="form-control mr-3 mb-1", placeholder="Pretraži po statusu")}}
+                            {{form.submit(class="btn btn-success")}}
+                            <a href="{{url_for('home.index')}}" class="btn btn-outline-secondary ml-2">Poništi filtere</a>
+                        </div>
+                      </form>
+                      <small class="text-secondary">Statusi: prazna, u redu, pokvarena</small>
+                    </div>
+                  </div>
+                </div><br>
+
+
+            <h2 class="text-center">POSUDE</h2>
+            <div class="col-md-12 d-flex align-content-center justify-content-end">
+                <a class="btn btn-success" href="{{url_for('pot.create')}}">Dodaj novu posudu</a>
+            </div>
+            <hr class="my-4">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+                {% for pot in pots %}
+                <div class="col">
+                    <div class="card shadow-sm">
+                          {% if pot["plant"].image %}
+                            <img src="/static/images/plants/{{pot['plant'].image}}">
+                          {% else %}
+                          <img src="/static/images/empty.jpg">
+                          {% endif %}
+                            <div class="card-body">
+                                <a href="{{url_for('pot.details', id=pot.id)}}" style="color:gray; text-decoration: none;">
+                                  <h4>{{pot.location_name}}</h4></a>
+
+                                <p class="card-text"><strong>STATUS: </strong>{{pot.status}}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="btn-group">
+                                        <a href="{{url_for('pot.details', id=pot.id)}}" class="btn btn-sm btn-success">Uredi</a>
+                                        <a href="{{url_for('pot.delete', id=pot.id)}}" class="btn btn-sm btn-outline-secondary">Obriši</a>
+                                    </div>
+                                    <small class="text-muted"></small>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+                {% endfor %}    
+            </div> 
+        </div>
+    </div>
+
+</main>
+
+{% endblock %}

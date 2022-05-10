@@ -1,0 +1,63 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    
+<div class="container">
+  <main>
+    <div class="py-5 text-center">
+      <h2>{{current_user.first_name}} {{current_user.last_name}}</h2>
+      <p class="lead">Ažuriraj svoje informacije</p>
+      <hr class="my-4">
+    </div>
+
+
+    <div class="row g-5">
+      
+      <div class="col-md-12 col-lg-12">
+        <h4 class="mb-3">Moje informacije</h4>
+        <form method="post" novalidate>
+            {{form.hidden_tag()}}
+          <div class="row g-3">
+            <div class="col-sm-6">
+                {{form.first_name.label(class="form-label")}}
+                {{form.first_name(class="form-control")}}
+                {% for error in form.first_name.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="col-sm-6">
+                {{form.last_name.label(class="form-label")}}
+                {{form.last_name(class="form-control")}}
+                {% for error in form.last_name.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="col-sm-6">
+                {{form.username.label(class="form-label")}}
+                {{form.username(class="form-control")}}
+                {% for error in form.username.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="col-sm-6">
+                {{form.password.label(class="form-label")}}
+                {{form.password(class="form-control")}}
+                {% for error in form.password.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            </div>
+            
+          <hr class="my-4">
+
+          {{form.submit(class="w-100 btn btn-success btn-lg")}}
+        </form>
+      </div>
+    </div>
+
+  </main>
+  </div><br><br><br>
+
+{% endblock %}

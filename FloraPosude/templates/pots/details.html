@@ -1,0 +1,306 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+<br>
+<div class="container">
+    <div class="col-md-12 d-flex align-content-center justify-content-end">
+        <a class="btn btn-success" href="{{url_for('pot.create')}}">Dodaj novu posudu</a>&nbsp;
+        <a class="btn btn-outline-success" href="{{url_for('pot.delete', id=pot.id)}}">Obriši ovu posudu</a>
+    </div><br>
+    <div class="card">
+        <div class="card-body">
+            <h1 class="card-title text-center">{{pot.location_name}}</h1>
+            <div class="col-md-12 d-flex align-content-center justify-content-end">
+                <a class="btn btn-success" href="{{url_for('pot.details', id=pot.id, sync='sync')}}">SYNC</a>
+            </div>
+            <div class="row">
+                <div class="col-lg-5 col-md-5 col-sm-6">
+                    <div class="white-box text-center">
+                        {% if pot['plant'].image %}
+                            <img src="/static/images/plants/{{pot['plant'].image}}" class="img-responsive" width="360">
+                        {% else %}
+                            <img src="/static/images/empty.jpg" class="img-responsive" width="360">
+                        {% endif %}
+                    </div>
+                    {% if result_values != {} %}
+                        <br><nav>
+                            <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                                <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Linijski dijagram</button>
+                                <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Kružni dijagram</button>
+                                <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="false">Histogram</button>
+                            </div>
+                        </nav>
+                        <div class="tab-content" id="nav-tabContent">
+                            <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+                                <canvas id="lineChart"></canvas>
+                            </div>
+                            <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+                                <canvas id="pieChart"></canvas>
+                            </div>
+                            <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
+                                <canvas id="barChart"></canvas>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-lg-7 col-md-7 col-sm-6">
+                    <h4 class="box-title mt-5">Biljka u posudi</h4>
+                    {% if pot["plant"] %}
+                        <a href="{{url_for('plant.details', id=pot['plant'].id)}}" style="color:gray;">
+                            <h5>{{pot["plant"].name}}</h5></a>
+                            <h4 class="box-title mt-5">Pojedinosti</h4>
+                            <ul class="list-unstyled">
+                                <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-droplet-fill" viewBox="0 0 16 16">
+                                    <path d="M8 16a6 6 0 0 0 6-6c0-1.655-1.122-2.904-2.432-4.362C10.254 4.176 8.75 2.503 8 0c0 0-6 5.686-6 10a6 6 0 0 0 6 6ZM6.646 4.646l.708.708c-.29.29-1.128 1.311-1.907 2.87l-.894-.448c.82-1.641 1.717-2.753 2.093-3.13Z"/>
+                                  </svg>
+                                    <strong>Posljednje zalijevanje:</strong> {{pot.watering_date.strftime("%d.%m.%Y %H:%M")}}
+                                </li>
+                                <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-droplet-fill" viewBox="0 0 16 16">
+                                    <path d="M8 16a6 6 0 0 0 6-6c0-1.655-1.122-2.904-2.432-4.362C10.254 4.176 8.75 2.503 8 0c0 0-6 5.686-6 10a6 6 0 0 0 6 6ZM6.646 4.646l.708.708c-.29.29-1.128 1.311-1.907 2.87l-.894-.448c.82-1.641 1.717-2.753 2.093-3.13Z"/>
+                                  </svg>
+                                    <strong>Sljedeće zalijevanje:</strong> {{next_watering.strftime("%d.%m.%Y %H:%M")}}
+                                </li>
+                                <li><i class="fa fa-check"></i>
+                                    <strong>STATUS:</strong> {{pot.status}}
+                                </li>
+                            </ul>
+
+                            {% if result_values != {} %}
+                                <h4 class="box-title mt-5">Dobiveni podaci</h4>
+                                <ul class="list-unstyled">
+                                    <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-moisture" viewBox="0 0 16 16">
+                                        <path d="M13.5 0a.5.5 0 0 0 0 1H15v2.75h-.5a.5.5 0 0 0 0 1h.5V7.5h-1.5a.5.5 0 0 0 0 1H15v2.75h-.5a.5.5 0 0 0 0 1h.5V15h-1.5a.5.5 0 0 0 0 1h2a.5.5 0 0 0 .5-.5V.5a.5.5 0 0 0-.5-.5h-2zM7 1.5l.364-.343a.5.5 0 0 0-.728 0l-.002.002-.006.007-.022.023-.08.088a28.458 28.458 0 0 0-1.274 1.517c-.769.983-1.714 2.325-2.385 3.727C2.368 7.564 2 8.682 2 9.733 2 12.614 4.212 15 7 15s5-2.386 5-5.267c0-1.05-.368-2.169-.867-3.212-.671-1.402-1.616-2.744-2.385-3.727a28.458 28.458 0 0 0-1.354-1.605l-.022-.023-.006-.007-.002-.001L7 1.5zm0 0-.364-.343L7 1.5zm-.016.766L7 2.247l.016.019c.24.274.572.667.944 1.144.611.781 1.32 1.776 1.901 2.827H4.14c.58-1.051 1.29-2.046 1.9-2.827.373-.477.706-.87.945-1.144zM3 9.733c0-.755.244-1.612.638-2.496h6.724c.395.884.638 1.741.638 2.496C11 12.117 9.182 14 7 14s-4-1.883-4-4.267z"/>
+                                    </svg>
+                                        <strong>Vlažnost zemlje:</strong> {{result_values["humidity"]}} %
+                                    </li>
+                                    <li>&nbsp;<i class="fa fa-thermometer"></i>
+                                        <strong>Temperatura zraka:</strong> {{result_values["temperature"]}} °C
+                                    </li>
+                                    <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
+                                        <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+                                      </svg>
+                                        <strong>Ph vrijednost zemlje:</strong> {{result_values["ph_value"]}}
+                                    </li>
+                                    <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-brightness-high" viewBox="0 0 16 16">
+                                        <path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
+                                      </svg>
+                                        <strong>Razina svjetla:</strong> {{result_values["light_level"]}}
+                                    </li>
+                                </ul>
+            
+                                <h4 class="box-title mt-5" style="color:red;">UPOZORENJE</h4>
+                                <ul class="list-unstyled">
+                                    {% if result_values["humidity"] > pot["plant"].humidity %}
+                                        <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-moisture" viewBox="0 0 16 16">
+                                            <path d="M13.5 0a.5.5 0 0 0 0 1H15v2.75h-.5a.5.5 0 0 0 0 1h.5V7.5h-1.5a.5.5 0 0 0 0 1H15v2.75h-.5a.5.5 0 0 0 0 1h.5V15h-1.5a.5.5 0 0 0 0 1h2a.5.5 0 0 0 .5-.5V.5a.5.5 0 0 0-.5-.5h-2zM7 1.5l.364-.343a.5.5 0 0 0-.728 0l-.002.002-.006.007-.022.023-.08.088a28.458 28.458 0 0 0-1.274 1.517c-.769.983-1.714 2.325-2.385 3.727C2.368 7.564 2 8.682 2 9.733 2 12.614 4.212 15 7 15s5-2.386 5-5.267c0-1.05-.368-2.169-.867-3.212-.671-1.402-1.616-2.744-2.385-3.727a28.458 28.458 0 0 0-1.354-1.605l-.022-.023-.006-.007-.002-.001L7 1.5zm0 0-.364-.343L7 1.5zm-.016.766L7 2.247l.016.019c.24.274.572.667.944 1.144.611.781 1.32 1.776 1.901 2.827H4.14c.58-1.051 1.29-2.046 1.9-2.827.373-.477.706-.87.945-1.144zM3 9.733c0-.755.244-1.612.638-2.496h6.724c.395.884.638 1.741.638 2.496C11 12.117 9.182 14 7 14s-4-1.883-4-4.267z"/>
+                                        </svg>
+                                            <strong>Vlažnost zemlje je previsoka! Zalijevanje je odgođeno za 1 dan.</strong>
+                                        </li>
+                                    {% elif result_values["humidity"] < pot["plant"].humidity %}
+                                        <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-moisture" viewBox="0 0 16 16">
+                                            <path d="M13.5 0a.5.5 0 0 0 0 1H15v2.75h-.5a.5.5 0 0 0 0 1h.5V7.5h-1.5a.5.5 0 0 0 0 1H15v2.75h-.5a.5.5 0 0 0 0 1h.5V15h-1.5a.5.5 0 0 0 0 1h2a.5.5 0 0 0 .5-.5V.5a.5.5 0 0 0-.5-.5h-2zM7 1.5l.364-.343a.5.5 0 0 0-.728 0l-.002.002-.006.007-.022.023-.08.088a28.458 28.458 0 0 0-1.274 1.517c-.769.983-1.714 2.325-2.385 3.727C2.368 7.564 2 8.682 2 9.733 2 12.614 4.212 15 7 15s5-2.386 5-5.267c0-1.05-.368-2.169-.867-3.212-.671-1.402-1.616-2.744-2.385-3.727a28.458 28.458 0 0 0-1.354-1.605l-.022-.023-.006-.007-.002-.001L7 1.5zm0 0-.364-.343L7 1.5zm-.016.766L7 2.247l.016.019c.24.274.572.667.944 1.144.611.781 1.32 1.776 1.901 2.827H4.14c.58-1.051 1.29-2.046 1.9-2.827.373-.477.706-.87.945-1.144zM3 9.733c0-.755.244-1.612.638-2.496h6.724c.395.884.638 1.741.638 2.496C11 12.117 9.182 14 7 14s-4-1.883-4-4.267z"/>
+                                        </svg>
+                                            <strong>Vlažnost zemlje je preniska! Pokrenuto je zalijevanje.</strong>
+                                        </li>
+                                    {% endif %}
+                                    
+                                    {% if result_values["temperature"] > pot["plant"].temperature %}
+                                        <li>&nbsp;<i class="fa fa-thermometer"></i>
+                                            <strong>Temperatura zraka je previsoka!</strong>
+                                        </li>
+                                    {% elif result_values["temperature"] < pot["plant"].temperature %}
+                                        <li>&nbsp;<i class="fa fa-thermometer"></i>
+                                            <strong>Temperatura zraka je preniska!</strong>
+                                        </li>
+                                    {% endif %}
+
+
+                                    {% if result_values["ph_value"] > pot["plant"].ph_value %}
+                                        <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
+                                            <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+                                          </svg>
+                                            <strong>Ph vrijednost zemlje je previsoka!</strong>
+                                        </li>
+                                    {% elif result_values["ph_value"] < pot["plant"].ph_value %}
+                                        <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
+                                            <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+                                          </svg>
+                                            <strong>Ph vrijednost zemlje je preniska!</strong>
+                                        </li>
+                                    {% endif %}
+
+                                    {% if result_values["light_level"] == "Niska" and pot["plant"].place == "Svjetlije" %}
+                                        <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-brightness-high" viewBox="0 0 16 16">
+                                            <path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
+                                          </svg>
+                                            <strong>Razina svjetla je preniska!</strong>
+                                        </li>
+                                    {% elif result_values["light_level"] == "Visoka" and pot["plant"].place == "Tamnije" %}
+                                        <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-brightness-high" viewBox="0 0 16 16">
+                                            <path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
+                                          </svg>
+                                            <strong>Razina svjetla je previsoka!</strong>
+                                        </li>
+                                    {% endif %}
+                                    {% if pot.status == "POKVARENA" %}
+                                        <br><li><i class="fa fa-trash"></i>
+                                            <strong>Posuda je pokvarena, preporučamo da ju obrišete!</strong>
+                                        </li>
+                                    {% endif %}
+                                                                
+                                </ul>
+
+                                {% endif %}
+
+                            {% else %}
+                                <h5>Nema</h5>
+                                <h4 class="box-title mt-5">Pojedinosti</h4>
+                                <ul class="list-unstyled">
+                                    <li><i class="fa fa-check"></i>
+                                        <strong>STATUS:</strong> {{pot.status}}
+                                    </li>
+                                </ul>
+                                
+                                {% if pot.status == "POKVARENA" %}
+                                <h4 class="box-title mt-5" style="color:red;">UPOZORENJE</h4>
+                                <ul class="list-unstyled">
+                                    <li><i class="fa fa-trash"></i>
+                                        <strong>Posuda je pokvarena, preporučamo da ju obrišete!</strong>
+                                    </li>
+                                </ul>
+                                {% endif %}
+                            {% endif %}                                           
+                            
+                </div>
+
+                <div class="col-lg-12 col-md-12 col-sm-12">
+                    <h3 class="box-title mt-5">Informacije</h3><br>
+                    <div >
+                        <form method="post" novalidate enctype="multipart/form-data">
+                            {{form.hidden_tag()}}
+                          <div class="row g-3">
+                            <div class="col-sm-6">
+                                {{form.location_name.label(class="form-label")}}
+                                {{form.location_name(class="form-control")}}
+                                {% for error in form.location_name.errors %}
+                                    <span class="text-danger">{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                
+                            <div class="col-sm-6">
+                                {{form.planted_plant.label(class="form-label")}}
+                                {{form.planted_plant(class="form-control")}}
+                                {% for error in form.planted_plant.errors %}
+                                    <span class="text-danger">{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                
+                            <div class="col-sm-6">
+                                {{form.status.label(class="form-label")}}
+                                {{form.status(class="form-control")}}
+                                {% for error in form.status.errors %}
+                                    <span class="text-danger">{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                
+                            <div class="col-sm-6">
+                                {{form.watering.label()}}
+                                {{form.watering(class="form-check-label", style="margin-top:40px;")}}
+                            </div>             
+                          {{form.submit(class="w-100 btn btn-success btn-lg")}}
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div><br><br>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+<script>
+    var ctxL = document.getElementById("lineChart").getContext('2d');
+    var myLineChart = new Chart(ctxL, {
+    type: 'line',
+    data: {
+        labels: ["Temperatura (°C)", "Vlažnost zemlje (%)", "Ph vrijednost zemlje"],
+        datasets: [{
+        label: "Dobiveni podaci",
+        data: [{{result_values["temperature"]}},{{result_values["humidity"]}},{{result_values["ph_value"]}}],
+        backgroundColor: [
+            'rgba(105, 0, 132, .2)',
+        ],
+        borderColor: [
+            'rgba(200, 99, 132, .7)',
+        ],
+        borderWidth: 2
+        }
+        ]
+    },
+    options: {
+        responsive: true
+    }
+    });
+</script>
+
+<script>
+  var ctxP = document.getElementById("pieChart").getContext('2d');
+  var myPieChart = new Chart(ctxP, {
+    type: 'pie',
+    data: {
+      labels: ["Temperatura (°C)", "Vlažnost zemlje (%)", "Ph vrijednost zemlje"],
+      datasets: [{
+        data: [{{result_values["temperature"]}},{{result_values["humidity"]}},{{result_values["ph_value"]}}],
+        backgroundColor: ["#F7464A", "#46BFBD", "#FDB45C", "#949FB1", "#4D5360"],
+        hoverBackgroundColor: ["#FF5A5E", "#5AD3D1", "#FFC870", "#A8B3C5", "#616774"]
+      }]
+    },
+    options: {
+      responsive: true
+    }
+  });
+</script>
+
+<script>
+    var ctxB = document.getElementById("barChart").getContext('2d');
+    var myBarChart = new Chart(ctxB, {
+    type: 'bar',
+    data: {
+        labels: ["Temperatura (°C)", "Vlažnost zemlje (%)", "Ph vrijednost zemlje"],
+        datasets: [{
+        label: 'Dobiveni podaci',
+        data: [{{result_values["temperature"]}},{{result_values["humidity"]}},{{result_values["ph_value"]}}],
+        backgroundColor: [
+            'rgba(255, 99, 132, 0.2)',
+            'rgba(54, 162, 235, 0.2)',
+            'rgba(255, 206, 86, 0.2)',
+            'rgba(75, 192, 192, 0.2)',
+            'rgba(153, 102, 255, 0.2)',
+            'rgba(255, 159, 64, 0.2)'
+        ],
+        borderColor: [
+            'rgba(255,99,132,1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)'
+        ],
+        borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+        yAxes: [{
+            ticks: {
+            beginAtZero: true
+            }
+        }]
+        }
+    }
+    });
+</script>
+{% endblock %}

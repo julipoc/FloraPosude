@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<main>
+    <div class="album py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center">BILJKE</h2>
+            <div class="col-md-12 d-flex align-content-center justify-content-end">
+                <a class="btn btn-success" href="{{url_for('plant.create')}}">Dodaj novu biljku</a>
+            </div>
+            <hr class="my-4">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+                {% for plant in plants %}
+                <div class="col">
+                    <div class="card shadow-sm">
+                        {% if plant.image %}
+                            <img src="/static/images/plants/{{plant.image}}">
+                        {% else %}
+                            <img src="/static/images/empty.jpg">
+                        {% endif %}
+                        <div class="card-body">
+                            <a href="{{url_for('plant.details', id=plant.id)}}" style="color:gray; text-decoration: none;">
+                                <h4>{{plant.name}}</h4></a>
+                            <p class="card-text">{{plant.description}}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="btn-group">
+                                    <a href="{{url_for('plant.details', id=plant.id)}}" class="btn btn-sm btn-success">Uredi</a>
+                                    <a href="{{url_for('plant.delete', id=plant.id)}}" class="btn btn-sm btn-outline-secondary">Obriši</a>
+                                </div>
+                                <small class="text-muted"></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}    
+            </div> 
+        </div>
+    </div>
+</main>
+
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+<br>
+<div class="container">
+    <div class="col-md-12 d-flex align-content-center justify-content-end">
+        <a class="btn btn-outline-success" href="{{url_for('home.index')}}">Povratak</a>
+    </div><br>
+    <div class="card">
+        <div class="card-body">
+            
+            <div class="row">
+            
+                <div class="col-lg-12 col-md-12 col-sm-12">
+                    <h3 class="box-title mt-5">Nova posuda</h3><br>
+                    <div >
+                        <form method="post" novalidate enctype="multipart/form-data">
+                            {{form.hidden_tag()}}
+                          <div class="row g-3">
+                            <div class="col-sm-6">
+                                {{form.location_name.label(class="form-label")}}
+                                {{form.location_name(class="form-control", placeholder="npr. Posuda na prozoru u dnevnom boravku")}}
+                                {% for error in form.location_name.errors %}
+                                    <span class="text-danger">{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                
+                            <div class="col-sm-6">
+                                {{form.status.label(class="form-label")}}
+                                {{form.status(class="form-control")}}
+                                {% for error in form.status.errors %}
+                                    <span class="text-danger">{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                
+                            <div class="col-sm-6">
+                                {{form.planted_plant.label(class="form-label")}}
+                                {{form.planted_plant(class="form-control")}}
+                                {% for error in form.planted_plant.errors %}
+                                    <span class="text-danger">{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                
+                            <div class="col-sm-6">
+                                {{form.watering.label()}}
+                                {{form.watering(class="form-check-label", style="margin-top:40px;")}}
+                            </div>
+                
+                          {{form.submit(class="w-100 btn btn-success btn-lg")}}
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div><br><br><br><br><br><br>
+
+{% endblock %}
