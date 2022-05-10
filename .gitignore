@@ -112,6 +112,7 @@ venv.bak/
 .flora-venv
 flora-venv/
 flora-venv.bak/
+./flora-venv/
 
 # Spyder project settings
 .spyderproject
