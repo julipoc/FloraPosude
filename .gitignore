@@ -109,6 +109,13 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+<<<<<<< HEAD
+=======
+.flora-venv
+flora-venv/
+..flora-venv/
+
+>>>>>>> a8ff1678c3f17fa3a09f8eecf7fa9c52a3795fe2
 
 
 # Spyder project settings
